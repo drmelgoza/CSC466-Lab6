@@ -39,7 +39,7 @@ def weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
         ratings.loc[user_id, item_id] = 99.00
 
     #get the targeted user's ratings row
-    target_user = ratings.loc[user_id]
+    target_user = ratings[user_id]
 
     #get set of all user rating rows that aren't the target
     other_users = ratings.copy().drop(user_id, axis=0).to_numpy()
@@ -66,8 +66,34 @@ def weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
 
     return k * x
 
-def method_3():
-    ...
+def adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
+    actual_rating = None
+    if ratings.loc[user_id, item_id] != 99.00:
+        actual_rating = ratings.loc[user_id, item_id]
+        ratings.loc[user_id, item_id] = 99.00
+
+    target_user = ratings[user_id]
+    target_average_rating = np.mean(target_user[target_user != 99.00])
+
+    other_users = ratings.copy().drop(user_id, axis=0).to_numpy()
+
+    other_ratings = other_users[:, item_id]
+
+    mask = (other_ratings != 99.00)
+    valid_users = other_users[mask]
+    valid_ratings = other_ratings[mask]
+
+    sims = [cosine_similarity(target_user, other_user) for other_user in valid_users]
+
+    k = 1 / np.sum(np.abs(sims))
+
+    x = np.sum(sims * (valid_ratings - target_average_rating))
+
+    if actual_rating:
+        ratings.loc[user_id, item_id] = actual_rating
+
+    return (target_average_rating + k) * x
+
 
 def method_4():
     ...
