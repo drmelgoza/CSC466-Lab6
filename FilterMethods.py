@@ -30,29 +30,36 @@ def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame):
 
     return prediction
 
+#weighted sum: based on multiplying ratings by the similarity between the target user and all other user vectors.
+#This product for all other users is summed and multiplied by a normalization factor
 def weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
     actual_rating = None
     if ratings.loc[user_id, item_id] != 99.00:
         actual_rating = ratings.loc[user_id, item_id]
         ratings.loc[user_id, item_id] = 99.00
 
-    #get the targeted user
-    user = ratings.loc[user_id]
+    #get the targeted user's ratings row
+    target_user = ratings.loc[user_id]
 
-    #get set of all users that aren't the target
-    not_user = ratings.copy().drop(user_id, axis=0).to_numpy()
+    #get set of all user rating rows that aren't the target
+    other_users = ratings.copy().drop(user_id, axis=0).to_numpy()
 
-    #get similarities between target and all other users
-    sims = [cosine_similarity(user, other_user) for other_user in not_user]
+    # get the ratings for the target item for all other users
+    other_ratings = other_users[:, item_id]
+
+    # filter down other user ratings and users to those who have actually rated the target item.
+    mask = (other_ratings != 99.00)
+    valid_users = other_users[mask]
+    valid_ratings = other_ratings[mask]
+
+    #get similarities between target and all other users who've rated the target item
+    sims = [cosine_similarity(target_user, other_user) for other_user in valid_users]
 
     # get normalization factor k
     k = 1 / np.sum(np.abs(sims))
 
-    #get the ratings for the target item for all other users
-    not_user_ratings = not_user[:, item_id]
-
     #sum up similarities multiplied by rankings.
-    x = np.sum(sims * not_user_ratings)
+    x = np.sum(sims * valid_ratings)
 
     if actual_rating:
         ratings.loc[user_id, item_id] = actual_rating
