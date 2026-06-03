@@ -13,7 +13,7 @@ def parse_data(csv_path: str) -> tuple[np.ndarray, pd.DataFrame]:
     #Note that rows 5, 7, 8, 13, 15, 16, 17, 18, 19, 20 are completely dense.
     ratings = df.drop(['0'], axis=1)
 
-    #some item related statistics go here.
+    #some item/user related statistics go here.
 
     return jokes_rated, ratings
 
