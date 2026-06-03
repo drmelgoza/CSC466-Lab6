@@ -14,6 +14,9 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     denominator = np.linalg.norm(a) * np.linalg.norm(b)
     return numerator / denominator
 
+def cosine_nearest_neighbors(user_id: int, item_id: int, ratings: pd.DataFrame):
+    actual_rating = None
+
 
 def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame):
     actual_rating = None
@@ -53,7 +56,7 @@ def weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
     valid_ratings = other_ratings[mask]
 
     #get similarities between target and all other users who've rated the target item
-    sims = [cosine_similarity(target_user, other_user) for other_user in valid_users]
+    sims = np.array([cosine_similarity(target_user, other_user) for other_user in valid_users])
 
     # get normalization factor k
     k = 1 / np.sum(np.abs(sims))
@@ -83,7 +86,7 @@ def adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
     valid_users = other_users[mask]
     valid_ratings = other_ratings[mask]
 
-    sims = [cosine_similarity(target_user, other_user) for other_user in valid_users]
+    sims = np.array([cosine_similarity(target_user, other_user) for other_user in valid_users])
 
     k = 1 / np.sum(np.abs(sims))
 
@@ -94,6 +97,37 @@ def adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
     return target_average_rating + (k * x)
 
 
-def method_4():
-    ...
+def adjusted_weighted_nearest_neighbors_sum(user_id: int, item_id: int, ratings: pd.DataFrame, k=5):
+    actual_rating = None
+    if ratings.loc[user_id, item_id] != 99.00:
+        actual_rating = ratings.loc[user_id, item_id]
+        ratings.loc[user_id, item_id] = 99.00
+
+    target_user = ratings.loc[user_id]
+    target_average_rating = np.mean(target_user[target_user != 99.00])
+
+    other_users = ratings.copy().drop(user_id, axis=0).to_numpy()
+
+    other_ratings = other_users[:, item_id]
+
+    mask = (other_ratings != 99.00)
+    valid_users = other_users[mask]
+    valid_ratings = other_ratings[mask]
+
+    sims = np.array([cosine_similarity(target_user, other_user) for other_user in valid_users])
+
+    k_nearest = np.flip(np.argsort(sims))[0:k]
+
+    k_nearest_sims = sims[k_nearest]
+
+    k_nearest_ratings = valid_ratings[k_nearest]
+
+    k = 1 / np.sum(np.abs(k_nearest_sims))
+
+    x = np.sum(k_nearest_sims * (k_nearest_ratings - target_average_rating))
+
+    if actual_rating:
+        ratings.loc[user_id, item_id] = actual_rating
+
+    return target_average_rating + (k * x)
 
