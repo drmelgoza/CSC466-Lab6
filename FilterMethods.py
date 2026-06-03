@@ -9,13 +9,20 @@ methods to use (replace filler names when finalized):
 4. adjusted NN weighted sum
 """
 
-def method_1(user_id: int, item_id: int, ratings: pd.DataFrame):
+def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame):
+    actual_rating = None
+    if ratings.loc[user_id, item_id] != 99.00:
+        actual_rating = ratings.loc[user_id, item_id]
+        ratings.loc[user_id, item_id] = 99.00
+
     reviewers = ratings[ratings.loc[:item_id] != 99.00].loc[:, item_id]
 
     prediction = reviewers.mean()
-    if ratings[iloc(user_id)]
 
-    return
+    if actual_rating:
+        ratings.loc[user_id, item_id] = actual_rating
+
+    return prediction
 
 def method_2():
     ...
