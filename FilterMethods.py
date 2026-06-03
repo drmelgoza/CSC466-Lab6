@@ -107,37 +107,46 @@ def adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
 
 
 def adjusted_weighted_nearest_neighbors_sum(user_id: int, item_id: int, ratings: pd.DataFrame, k=5):
+    # replace already existing rating for user-item pair if it already exists.
     actual_rating = None
     if ratings.loc[user_id, item_id] != 99.00:
         actual_rating = ratings.loc[user_id, item_id]
         ratings.loc[user_id, item_id] = 99.00
 
+    # get target user row and their average rating for all valid ratings (no 99's)
     target_user = ratings.loc[user_id]
     target_average_rating = np.mean(target_user[target_user != 99.00])
 
+    # get the set of all other users minus the target user, and retrieve their ratings for the target item
     other_users = ratings.copy().drop(user_id, axis=0).to_numpy()
-
     other_ratings = other_users[:, item_id]
 
+    #filter the users to those who have actually reviewed the target item and filter the ratings accordingly
     mask = (other_ratings != 99.00)
     valid_users = other_users[mask]
     valid_ratings = other_ratings[mask]
 
+    # get the similarity value between the target user and all other users
     sims = np.array([cosine_similarity(target_user, other_user) for other_user in valid_users])
 
+    #get the k-nearest users who are most similar to the target user.
+    #np.argsort() organizes in ascending order, so this array need to be flipped using np.flip().
     k_nearest = np.flip(np.argsort(sims))[0:k]
 
+    #get the k nearest similarity values and k nearest ratings
     k_nearest_sims = sims[k_nearest]
-
     k_nearest_ratings = valid_ratings[k_nearest]
 
+    # set the normalization factor using the k-nearest similarity values
     k = 1 / np.sum(np.abs(k_nearest_sims))
 
+    # calculate the summation using the k-nearest similarities and ratings
     x = np.sum(k_nearest_sims * (k_nearest_ratings - target_average_rating))
 
     # return the actual rating to the matrix for later use
     if actual_rating:
         ratings.loc[user_id, item_id] = actual_rating
 
+    # return the summation multiplied by the normalization factor, adding the average to "adjust" the predicted rating.
     return target_average_rating + (k * x)
 
