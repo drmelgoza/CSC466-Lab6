@@ -14,9 +14,6 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     denominator = np.linalg.norm(a) * np.linalg.norm(b)
     return numerator / denominator
 
-def cosine_nearest_neighbors(user_id: int, item_id: int, ratings: pd.DataFrame):
-    actual_rating = None
-
 
 def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame):
     actual_rating = None
@@ -34,7 +31,7 @@ def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame):
     return prediction
 
 #weighted sum: based on multiplying ratings by the similarity between the target user and all other user vectors.
-#This product for all other users is summed and multiplied by a normalization factor
+#This product is summed and multiplied by a normalization factor to get the final result.
 def weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
     actual_rating = None
     if ratings.loc[user_id, item_id] != 99.00:
@@ -69,31 +66,43 @@ def weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
 
     return k * x
 
+
+#similar to weighted sum, but the calculation now keeps in mind that the target user has their own unique range of review values.
+#Use the average in the target user's range to "adjust" the weighted sum to be accurate to the target user's ratings.
 def adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
+    #replace already existing rating for user-item pair if it already exists.
     actual_rating = None
     if ratings.loc[user_id, item_id] != 99.00:
         actual_rating = ratings.loc[user_id, item_id]
         ratings.loc[user_id, item_id] = 99.00
 
+    #get target user row and their average rating for all valid ratings (no 99's)
     target_user = ratings.loc[user_id]
     target_average_rating = np.mean(target_user[target_user != 99.00])
 
+    #get the set of all other users minus the target user, and retrieve their ratings for the target item
     other_users = ratings.copy().drop(user_id, axis=0).to_numpy()
-
     other_ratings = other_users[:, item_id]
 
+    #filter the users to those who have actually reviewed the target item and filter the ratings accordingly
     mask = (other_ratings != 99.00)
     valid_users = other_users[mask]
     valid_ratings = other_ratings[mask]
 
+    #get the similarity value between the target user and all other users.
     sims = np.array([cosine_similarity(target_user, other_user) for other_user in valid_users])
 
+    #set the normalization factor using the similarity values
     k = 1 / np.sum(np.abs(sims))
 
+    #calculate the summation
     x = np.sum(sims * (valid_ratings - target_average_rating))
+
+    # return the actual rating to the matrix for later use
     if actual_rating:
         ratings.loc[user_id, item_id] = actual_rating
 
+    #return the summation multiplied by the normalization factor, adding the average to "adjust" the predicted rating.
     return target_average_rating + (k * x)
 
 
@@ -126,6 +135,7 @@ def adjusted_weighted_nearest_neighbors_sum(user_id: int, item_id: int, ratings:
 
     x = np.sum(k_nearest_sims * (k_nearest_ratings - target_average_rating))
 
+    # return the actual rating to the matrix for later use
     if actual_rating:
         ratings.loc[user_id, item_id] = actual_rating
 
