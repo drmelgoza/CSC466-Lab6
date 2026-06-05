@@ -10,8 +10,16 @@ methods to use (replace filler names when finalized):
 """
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
-    numerator = np.dot(a, b)
-    denominator = np.linalg.norm(a) * np.linalg.norm(b)
+    a_prime = np.copy(a)
+    b_prime = np.copy(b)
+    a_mask = a_prime != 99.00
+    b_mask = b_prime != 99.00
+    mask = a_mask & b_mask
+    a_prime = a_prime[mask]
+    b_prime = b_prime[mask]
+
+    numerator = np.dot(a_prime, b_prime)
+    denominator = np.linalg.norm(a_prime) * np.linalg.norm(b_prime)
     return numerator / denominator
 
 
