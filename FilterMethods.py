@@ -96,15 +96,16 @@ def adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
     mask = (other_ratings != 99.00)
     valid_users = other_users[mask]
     valid_ratings = other_ratings[mask]
+    average_valid_ratings = [np.mean(user[user != 99.00]) for user in valid_users]
 
-    #get the similarity value between the target user and all other users.
+    # get the similarity value between the target user and all other users.
     sims = np.array([cosine_similarity(target_user, other_user) for other_user in valid_users])
 
-    #set the normalization factor using the similarity values
+    # set the normalization factor using the similarity values
     k = 1 / np.sum(np.abs(sims))
 
-    #calculate the summation
-    x = np.sum(sims * (valid_ratings - target_average_rating))
+    # calculate the summation
+    x = np.sum(sims * (valid_ratings - average_valid_ratings))
 
     # return the actual rating to the matrix for later use
     if actual_rating:
