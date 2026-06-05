@@ -29,7 +29,7 @@ def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame):
         actual_rating = ratings.loc[user_id, item_id]
         ratings.loc[user_id, item_id] = 99.00
 
-    item_reviews = ratings.loc[:item_id].to_numpy()
+    item_reviews = ratings.loc[:, item_id].to_numpy()
     filtered_reviews = item_reviews[item_reviews != 99.00]
 
     prediction = filtered_reviews.mean()
