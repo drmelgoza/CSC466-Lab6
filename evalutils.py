@@ -55,6 +55,6 @@ def predict(method: int, user_id: int, item_id: int, ratings_df):
     elif method == 3:
         return adjusted_weighted_sum(user_id, item_id, ratings_df)
     elif method == 4:
-        return adjusted_weighted_nearest_neighbors_sum(user_id, item_id, ratings_df)
+        return k_nearest_adjusted_weighted_sum(user_id, item_id, ratings_df)
     else:
         raise ValueError(f"Unknown method: {method}")

@@ -116,7 +116,7 @@ def adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame):
     return target_average_rating + (k * x)
 
 
-def adjusted_weighted_nearest_neighbors_sum(user_id: int, item_id: int, ratings: pd.DataFrame, k=5):
+def k_nearest_adjusted_weighted_sum(user_id: int, item_id: int, ratings: pd.DataFrame, k=5):
     # replace already existing rating for user-item pair if it already exists.
     actual_rating = None
     if ratings.loc[user_id, item_id] != 99.00:
