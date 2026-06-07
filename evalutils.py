@@ -34,9 +34,9 @@ def evaluate_predictions(actuals, preds):
         columns=["Predicted: No Rec", "Predicted: Rec"]
     )
 
-    precision = precision_score(actual_labels, pred_labels, zero_division=0)
-    recall = recall_score(actual_labels, pred_labels, zero_division=0)
-    f1 = f1_score(actual_labels, pred_labels, zero_division=0)
+    precision = precision_score(actual_labels, pred_labels, pos_label=1, zero_division=0)
+    recall = recall_score(actual_labels, pred_labels, pos_label=1, zero_division=0)
+    f1 = f1_score(actual_labels, pred_labels, pos_label=1, zero_division=0)
     accuracy = accuracy_score(actual_labels, pred_labels)
 
     return {
