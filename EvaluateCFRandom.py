@@ -4,6 +4,23 @@ import numpy as np
 
 from Parser import parse_data
 from evalutils import *
+from FilterMethods import mean_utility, weighted_sum, adjusted_weighted_sum, k_nearest_adjusted_weighted_sum
+
+
+def predict(method:int, user_id:int, item_id:int, ratings_df:pd.DataFrame) -> float:
+    if not (0 <= method <= 3):
+        #fix error message
+        raise ValueError("method must be between 0 and 3")
+    elif method == 0:
+         return mean_utility(user_id, item_id, ratings_df)
+    elif method == 1:
+        return weighted_sum(user_id, item_id, ratings_df)
+    elif method == 2:
+        return adjusted_weighted_sum(user_id, item_id, ratings_df)
+    else:
+        return k_nearest_adjusted_weighted_sum(user_id, item_id, ratings_df)
+
+
 def main(method:int, size: int, repeats: int=1):
     jokes_rated, ratings_df = parse_data()
 

@@ -23,7 +23,7 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return numerator / denominator
 
 
-def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame):
+def mean_utility(user_id: int, item_id: int, ratings: pd.DataFrame) -> float:
     actual_rating = None
     if ratings.loc[user_id, item_id] != 99.00:
         actual_rating = ratings.loc[user_id, item_id]
