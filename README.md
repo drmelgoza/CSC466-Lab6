@@ -15,13 +15,13 @@ To run `EvaluateCFRandom.py` use the following terminal command: `python3 Evalua
 To run `EvaluateCFList.py` use the following terminal command: `python3 EvaluateCFList.py <method> <filename>`
 
 The program parameters are defined as so:
-1. `method` is an integer from 1 to 4 defining which collaborative filtering method will be used by the program. The numbering for this parameter is the same as the listing below.
+1. `method` is an integer from 1 to 4 defining which collaborative filtering method will be used by the program. The numbering for this parameter is the same as the listing below in `List of Methods Used`.
 2. `size` is used by `EvaluateCFRandom.py` to determine the # of random user-item pairs to assess for each individual repetition.
 3. `repeats` is used by `EvaluateCFRandom.py` to determine the # of repetitions to execute during the program.
 4. `filename` is used by `EvaluateCFList.py` to identify the .csv file used to hold the user-item pairs to be assessed by the program.
 
 # List of Methods Used
-All methods used are located within the FilterMethods.py file.
+All methods used are located within the `FilterMethods.py` file.
 
 1. Mean Utility; `mean_utility()`
 2. Weighted Sum by User; `weighted_sum()`
