@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 
-#jester-1 is the only data we are using in this assignment,
-#so it'll be hardcoded into the program later
 def parse_data() -> tuple[np.ndarray, pd.DataFrame]:
     df = pd.read_csv('jester-data-1.csv', header=None)
 

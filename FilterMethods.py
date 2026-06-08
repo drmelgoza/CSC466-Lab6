@@ -1,14 +1,6 @@
 import pandas as pd
 import numpy as np
 
-"""
-methods to use (replace filler names when finalized):
-1. Mean utility
-2. weighted sum
-3. adjusted sum 
-4. adjusted NN weighted sum
-"""
-
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     a_prime = np.copy(a)
     b_prime = np.copy(b)
